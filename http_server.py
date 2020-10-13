@@ -93,6 +93,8 @@ class HttpServer():
             return b"image/png"
         if path.endswith('jpg'):
             return b'image/jpeg'
+        if path.endswith('ico'):
+            return b'image/x-icon'
         else:
             return b'text/plain'
 
@@ -132,19 +134,10 @@ class HttpServer():
 
         request = b''
         new_path = 'webroot/' + path
-        if path.endswith('html') or path.endswith('txt'):
-            with open(new_path, 'rb') as file:
-                request += file.read()
-            return request
+        FILE_TYPES = ['.html', '.txt', '.py', '.ico', '.png', '.jpg']
 
-        # Causes git bash to hang
-        if path.endswith('py'):
-            with open(new_path, 'rb') as file:
-                request += file.read()
-            return request
-
-        # Causes git bash to hang
-        if path.endswith('png') or path.endswith('jpg'):
+        # accessing the py, png, and jpg files cause git to hang
+        if path[path.find('.'):] in FILE_TYPES:
             with open(new_path, 'rb') as file:
                 request += file.read()
             return request
