@@ -60,7 +60,7 @@ class TestCase(unittest.TestCase):
         mimetype = HttpServer.get_mimetype(path)
 
         self.assertIn(mimetype, [b"text/html", b"text/plain"])
-        
+
 
     def test_get_content_not_found(self):
         path = "/foo/bar/baz/doesnt/exist"

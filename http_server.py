@@ -54,8 +54,8 @@ class HttpServer():
 
         Then you would return "/images/sample_1.png"
         """
-
-        return "TODO: COMPLETE THIS"  # TODO
+        path = request.split(' ')
+        return path[1]
 
 
     @staticmethod
@@ -85,10 +85,16 @@ class HttpServer():
             # for files that don't exist.
         """
 
-        if path.endswith('/'):
+        if path.endswith('/') or path.endswith('txt') or path.endswith('py'):
             return b"text/plain"
+        if path.endswith('html'):
+            return b"text/html"
+        if path.endswith('png'):
+            return b"image/png"
+        if path.endswith('jpg'):
+            return b'image/jpeg'
         else:
-            return b"TODO: FINISH THE REST OF THESE CASES"  # TODO
+            return b'text/plain'
 
     @staticmethod
     def get_content(path):
@@ -119,12 +125,39 @@ class HttpServer():
             get_content('/') -> images/, a_web_page.html, make_type.py,..."
             # Returns a directory listing of `webroot/`
 
-            get_content('/a_page_that_doesnt_exist.html') 
+            get_content('/a_page_that_doesnt_exist.html')
             # The file `webroot/a_page_that_doesnt_exist.html`) doesn't exist,
             # so this should raise a FileNotFoundError.
         """
 
-        return b"Not implemented!"  # TODO: Complete this function.
+        request = b''
+        new_path = 'webroot/' + path
+        if path.endswith('html') or path.endswith('txt'):
+            with open(new_path, 'rb') as file:
+                request += file.read()
+            return request
+
+        # Causes git bash to hang
+        if path.endswith('py'):
+            with open(new_path, 'rb') as file:
+                request += file.read()
+            return request
+
+        # Causes git bash to hang
+        if path.endswith('png') or path.endswith('jpg'):
+            with open(new_path, 'rb') as file:
+                request += file.read()
+            return request
+
+        if os.path.isdir(new_path):
+            for file in os.listdir(new_path):
+                request += (file.encode() + b'\n')
+            return request
+
+        else:
+            raise FileNotFoundError
+
+
 
     def __init__(self, port):
         self.port = port
@@ -155,11 +188,11 @@ class HttpServer():
 
                         if '\r\n\r\n' in request:
                             break
-                    
+
                     print("Request received:\n{}\n\n".format(request))
 
                     path = self.get_path(request)
-                    
+
                     try:
                         body = self.get_content(path)
                         mimetype = self.get_mimetype(path)
@@ -180,7 +213,7 @@ class HttpServer():
                 except:
                     traceback.print_exc()
                 finally:
-                    conn.close() 
+                    conn.close()
 
         except KeyboardInterrupt:
             sock.close()
@@ -193,8 +226,7 @@ if __name__ == '__main__':
     try:
         port = int(sys.argv[1])
     except IndexError:
-        port = 10000 
+        port = 10000
 
     server = HttpServer(port)
     server.serve()
-
